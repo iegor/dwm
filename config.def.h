@@ -13,10 +13,12 @@ static const unsigned int snap      = 32;       /* snap pixel */
 static const Bool showbar           = True;     /* False means no bar */
 static const Bool topbar            = True;     /* False means bottom bar */
 
+/*
 typedef struct _dwm_tag {
 	char txt[2];
 	float ratio;
 } tag;
+*/
 
 /*
 static const tag tags[] = {

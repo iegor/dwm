@@ -1776,7 +1776,9 @@ toggleview(const Arg *arg) {
 	unsigned int newtagset = selmon->tagset[selmon->seltags] ^ (arg->ui & TAGMASK);
 
 	if(newtagset) {
+		sprintf("toggleview: from %i to %i", selmon->tagset[selmon->seltags], newtagset);
 		selmon->tagset[selmon->seltags] = newtagset;
+		selmon->mfact = tag_ratios[newtagset];
 		focus(NULL);
 		arrange(selmon);
 	}
