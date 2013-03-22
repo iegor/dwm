@@ -2074,8 +2074,10 @@ view(const Arg *arg) {
 	if((arg->ui & TAGMASK) == selmon->tagset[selmon->seltags])
 		return;
 	selmon->seltags ^= 1; /* toggle sel tagset */
-	if(arg->ui & TAGMASK)
+	if(arg->ui & TAGMASK ) {
 		selmon->tagset[selmon->seltags] = arg->ui & TAGMASK;
+		selmon->mfact = tag_ratios[selmon->tagset[selmon->seltags]];
+	}
 	focus(NULL);
 	arrange(selmon);
 }
