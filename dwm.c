@@ -194,6 +194,11 @@ typedef struct {
 	void (*arrange)(Monitor *);
 } Layout;
 
+typedef struct _dwm_tag {
+  const char *name;
+  float ratio;
+} Tag;
+
 struct Monitor {
 	char ltsymbol[16];
 	float mfact;
@@ -201,10 +206,10 @@ struct Monitor {
 	int num;
 	int by;               /* bar geometry */
 	int mx, my, mw, mh;   /* screen size */
-	int wx, wy, ww, wh;   /* window area  */
+	int wx, wy, ww, wh;   /* window area */
 	unsigned int seltags;
 	unsigned int sellt;
-	unsigned int tagset[2];
+	unsigned int tagset[2];  /*Two sets for Alt-TAB behaviour*/
 	Bool showbar;
 	Bool topbar;
 	Client *clients;
@@ -529,7 +534,7 @@ buttonpress(XEvent *e) {
 	if(ev->window == selmon->barwin) {
 		i = x = 0;
 		do
-			x += TEXTW(tags[i]);
+			x += TEXTW(tags[i].name);
 		while(ev->x >= x && ++i < LENGTH(tags));
 		if(i < LENGTH(tags)) {
 			click = ClkTagBar;
@@ -785,7 +790,6 @@ createmon(void) {
 	if(!(m = (Monitor *)calloc(1, sizeof(Monitor))))
 		die("fatal: could not malloc() %u bytes\n", sizeof(Monitor));
 	m->tagset[0] = m->tagset[1] = 1;
-	m->mfact = tag_ratios[0];
 	m->nmaster = nmaster;
 	m->showbar = showbar;
 	m->topbar = topbar;
@@ -860,9 +864,9 @@ drawbar(Monitor *m) {
 	}
 	dc.x = 0;
 	for(i = 0; i < LENGTH(tags); i++) {
-		dc.w = TEXTW(tags[i]);
+		dc.w = TEXTW(tags[i].name);
 		col = m->tagset[m->seltags] & 1 << i ? dc.sel : dc.norm;
-		drawtext(tags[i], col, urg & 1 << i);
+		drawtext(tags[i].name, col, urg & 1 << i);
 		drawsquare(m == selmon && selmon->sel && selmon->sel->tags & 1 << i,
 		           occ & 1 << i, urg & 1 << i, col);
 		dc.x += dc.w;
@@ -1794,11 +1798,21 @@ setmfact(const Arg *arg) {
 	float f;
 	if(!arg || !selmon->lt[selmon->sellt]->arrange)
 		return;
-	f = arg->f < 1.0 ? arg->f + tag_ratios[selmon->tagset[selmon->seltags]] : arg->f - 1.0;
+  // determine lowest enabled tag
+  unsigned int tagset = selmon->tagset[selmon->seltags];
+  unsigned int i=0;
+  for(i=0; i <= LENGTH(tags); i++) {
+    if(tagset & 1) {
+      selmon->mfact = tags[i].ratio;
+      break;
+    }
+    tagset = tagset >> 1;
+  }
+	f = arg->f < 1.0 ? arg->f + tags[i].ratio : arg->f - 1.0;
 	if(f < 0.1 || f > 0.9)
 		return;
-	tag_ratios[selmon->tagset[selmon->seltags]] = f;
-	selmon->mfact = tag_ratios[selmon->tagset[selmon->seltags]];
+	tags[i].ratio = f;
+	selmon->mfact = tags[i].ratio;
 	arrange(selmon);
 }
 
@@ -2009,10 +2023,19 @@ toggletag(const Arg *arg) {
 void
 toggleview(const Arg *arg) {
 	unsigned int newtagset = selmon->tagset[selmon->seltags] ^ (arg->ui & TAGMASK);
-
 	if(newtagset) {
 		selmon->tagset[selmon->seltags] = newtagset;
-		selmon->mfact = tag_ratios[newtagset];
+    // determine lowest enabled tag
+    unsigned int tagset = selmon->tagset[selmon->seltags];
+    unsigned int i=0;
+    for(i=0; i <= LENGTH(tags); i++) {
+      if(tagset & 1) {
+        selmon->mfact = tags[i].ratio;
+        break;
+      }
+      tagset = tagset >> 1;
+    }
+		selmon->mfact = tags[i].ratio;
 		focus(NULL);
 		arrange(selmon);
 	}
@@ -2422,7 +2445,15 @@ view(const Arg *arg) {
 	selmon->seltags ^= 1; /* toggle sel tagset */
 	if(arg->ui & TAGMASK ) {
 		selmon->tagset[selmon->seltags] = arg->ui & TAGMASK;
-		selmon->mfact = tag_ratios[selmon->tagset[selmon->seltags]];
+    unsigned int test = selmon->tagset[selmon->seltags];
+    unsigned int i=0;
+    for(i=0; i <= LENGTH(tags); i++) {
+      if(test & 1) {
+        selmon->mfact = tags[i].ratio;
+        break;
+      }
+      test = test >> 1;
+    }
 	}
 	focus(NULL);
 	arrange(selmon);

@@ -15,39 +15,19 @@ static const Bool showsystray       = True;     /* False means no systray */
 static const Bool showbar           = True;     /* False means no bar */
 static const Bool topbar            = True;     /* False means bottom bar */
 
-/*
-typedef struct _dwm_tag {
-	char txt[2];
-	float ratio;
-} tag;
-*/
-
-/*
-static const tag tags[] = {
-	{"1", 0.0f},
-	{"2", 0.0f},
-	{"3", 0.0f},
-	{"4", 0.0f},
-	{"5", 0.0f},
-	{"6", 0.0f},
-	{"7", 0.0f},
-	{"8", 0.0f},
-	{"9", 0.0f}
-}
-*/
-static float tag_ratios[] = {
-	0.5f,
-	0.5f,
-	0.5f,
-	0.5f,
-	0.5f,
-	0.5f,
-	0.5f,
-	0.5f,
-// 	0.5f
-};
 /* tagging */
-static const char *tags[] = { "1", "2", "3", "4", "5", "6", "7", "8", "9" };
+//static const char *tags[] = { "1", "2", "3", "4", "5", "6", "7", "8", "9" };
+static Tag tags[] = {
+  { "1", 0.5f },
+  { "2", 0.5f },
+  { "3", 0.5f },
+  { "4", 0.5f },
+  { "5", 0.5f },
+  { "6", 0.5f },
+  { "7", 0.5f },
+  { "skype", 0.80f },
+  { "web", 0.5f }
+};
 
 static const Rule rules[] = {
 	/* xprop(1):
@@ -56,7 +36,9 @@ static const Rule rules[] = {
 	 */
 	/* class      instance    title       tags mask     isfloating   monitor */
 	{ "Gimp",     NULL,       NULL,       0,            True,        -1 },
-	{ "Firefox",  NULL,       NULL,       1 << 8,       False,       -1 },
+	{ "Firefox",  NULL,       NULL,       9 << 8,       False,       -1 },
+  { "Skype",    NULL,       NULL,       8 << 8,       False,       -1 },
+  { "KDevelop", NULL,       NULL,       2 << 8,       False,       -1 }
 };
 
 /* layout(s) */
