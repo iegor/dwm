@@ -1943,8 +1943,10 @@ tile(Monitor *m) {
 	if(n == 0)
 		return;
 
-	if(n > m->nmaster)
+	if(n > m->nmaster) {
+		sprintf("setting tile fact: %f", m->mfact);
 		mw = m->nmaster ? m->ww * m->mfact : 0;
+	}
 	else
 		mw = m->ww;
 	for(i = my = ty = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next), i++)
