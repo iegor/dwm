@@ -20,9 +20,12 @@ options:
 
 ${OBJ}: config.h config.mk
 
-config.h:
+config.h: cleanconfig
 	@echo creating $@ from config.def.h
-	@cp config.def.h $@
+	@cp -v config.def.h $@
+
+cleanconfig:
+	rm -f ./config.h
 
 dwm: ${OBJ}
 	@echo CC -o $@

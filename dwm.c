@@ -785,7 +785,7 @@ createmon(void) {
 	if(!(m = (Monitor *)calloc(1, sizeof(Monitor))))
 		die("fatal: could not malloc() %u bytes\n", sizeof(Monitor));
 	m->tagset[0] = m->tagset[1] = 1;
-	m->mfact = tag_ratios[1];
+	m->mfact = tag_ratios[0];
 	m->nmaster = nmaster;
 	m->showbar = showbar;
 	m->topbar = topbar;
@@ -1792,7 +1792,6 @@ setlayout(const Arg *arg) {
 void
 setmfact(const Arg *arg) {
 	float f;
-
 	if(!arg || !selmon->lt[selmon->sellt]->arrange)
 		return;
 	f = arg->f < 1.0 ? arg->f + tag_ratios[selmon->tagset[selmon->seltags]] : arg->f - 1.0;
@@ -1944,7 +1943,6 @@ tile(Monitor *m) {
 		return;
 
 	if(n > m->nmaster) {
-		sprintf("setting tile fact: %f", m->mfact);
 		mw = m->nmaster ? m->ww * m->mfact : 0;
 	}
 	else
@@ -2013,7 +2011,6 @@ toggleview(const Arg *arg) {
 	unsigned int newtagset = selmon->tagset[selmon->seltags] ^ (arg->ui & TAGMASK);
 
 	if(newtagset) {
-		sprintf("toggleview: from %i to %i", selmon->tagset[selmon->seltags], newtagset);
 		selmon->tagset[selmon->seltags] = newtagset;
 		selmon->mfact = tag_ratios[newtagset];
 		focus(NULL);
