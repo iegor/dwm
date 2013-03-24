@@ -785,7 +785,7 @@ createmon(void) {
 	if(!(m = (Monitor *)calloc(1, sizeof(Monitor))))
 		die("fatal: could not malloc() %u bytes\n", sizeof(Monitor));
 	m->tagset[0] = m->tagset[1] = 1;
-	m->mfact = mfact;
+	m->mfact = tag_ratios[1];
 	m->nmaster = nmaster;
 	m->showbar = showbar;
 	m->topbar = topbar;
@@ -1788,17 +1788,18 @@ setlayout(const Arg *arg) {
 		drawbar(selmon);
 }
 
-/* arg > 1.0 will set mfact absolutly */
+/* arg > 1.0 will set mfact absolutely */
 void
 setmfact(const Arg *arg) {
 	float f;
 
 	if(!arg || !selmon->lt[selmon->sellt]->arrange)
 		return;
-	f = arg->f < 1.0 ? arg->f + selmon->mfact : arg->f - 1.0;
+	f = arg->f < 1.0 ? arg->f + tag_ratios[selmon->tagset[selmon->seltags]] : arg->f - 1.0;
 	if(f < 0.1 || f > 0.9)
 		return;
-	selmon->mfact = f;
+	tag_ratios[selmon->tagset[selmon->seltags]] = f;
+	selmon->mfact = tag_ratios[selmon->tagset[selmon->seltags]];
 	arrange(selmon);
 }
 
