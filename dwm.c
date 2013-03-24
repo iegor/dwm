@@ -222,7 +222,7 @@ typedef struct {
 	unsigned int tags;
 	Bool isfloating;
 	int monitor;
-i} Rule;
+} Rule;
 
 /* typedef struct Systray   Systray; */
 typedef struct Systray {
@@ -1240,9 +1240,9 @@ keypress(XEvent *e) {
 	ev = &e->xkey;
 	keysym = XKeycodeToKeysym(dpy, (KeyCode)ev->keycode, 0);
 	for(i = 0; i < LENGTH(keys); i++)
-		if(keysym == keys[i].keysym
-		&& CLEANMASK(keys[i].mod) == CLEANMASK(ev->state)
-		&& keys[i].func)
+		if(keysym == keys[i].keysym &&
+		   CLEANMASK(keys[i].mod) == CLEANMASK(ev->state) &&
+		   keys[i].func)
 			keys[i].func(&(keys[i].arg));
 }
 
@@ -1744,7 +1744,7 @@ setfocus(Client *c) {
  		                XA_WINDOW, 32, PropModeReplace,
  		                (unsigned char *) &(c->win), 1);
 	}
-	sendevent(c->win, wmatom[WMTakeFocus], NoEventMask, wmatom[WMTakeFocus], CUrrentTime, 0, 0, 0);
+	sendevent(c->win, wmatom[WMTakeFocus], NoEventMask, wmatom[WMTakeFocus], CurrentTime, 0, 0, 0);
 }
 
 void
