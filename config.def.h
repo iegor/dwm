@@ -18,15 +18,15 @@ static const Bool topbar            = True;     /* False means bottom bar */
 /* tagging */
 //static const char *tags[] = { "1", "2", "3", "4", "5", "6", "7", "8", "9" };
 static Tag tags[] = {
-  { "1", 0.5f },
-  { "2", 0.5f },
-  { "3", 0.5f },
-  { "4", 0.5f },
-  { "5", 0.5f },
-  { "6", 0.5f },
-  { "7", 0.5f },
-  { "skype", 0.80f },
-  { "web", 0.5f }
+  { "1", 0.51f },
+  { "2", 0.51f },
+  { "3", 0.51f },
+  { "4", 0.51f },
+  { "5", 0.51f },
+  { "6", 0.51f },
+  { "7", 0.51f },
+  { "skype", 0.81f },
+  { "web", 0.51f }
 };
 
 static const Rule rules[] = {
