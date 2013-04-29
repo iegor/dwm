@@ -67,8 +67,8 @@ static const Layout layouts[] = {
 
 /* commands */
 static const char *dmenucmd[] = { "dmenu_run", "-fn", font, "-nb", normbgcolor, "-nf", normfgcolor, "-sb", selbgcolor, "-sf", selfgcolor, NULL };
-static const char *termcmd_user[]  = { "/usr/bin/scripts/urxvt_user", NULL };
-static const char *termcmd_root[]  = { "/usr/bin/scripts/urxvt_root", NULL };
+static const char *termcmd_user[]  = { "urxvt_user", NULL };
+static const char *termcmd_root[]  = { "urxvt_root", NULL };
 static const char *lock_command[] = { "/usr/bin/xscreensaver-command", "-lock", NULL };
 
 static Key keys[] = {
