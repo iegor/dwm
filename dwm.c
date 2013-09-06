@@ -29,6 +29,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <sys/types.h>
+#include <sys/stat.h>
 #include <sys/wait.h>
 #include <X11/cursorfont.h>
 #include <X11/keysym.h>
@@ -288,6 +289,7 @@ static Client *nexttiled(Client *c);
 static void pop(Client *);
 static void propertynotify(XEvent *e);
 static void quit(const Arg *arg);
+static void self_restart(const Arg *arg);
 static Monitor *recttomon(int x, int y, int w, int h);
 static void removesystrayicon(Client *i);
 static void resize(Client *c, int x, int y, int w, int h, Bool interact);
@@ -2542,6 +2544,66 @@ zoom(const Arg *arg) {
 		if(!c || !(c = nexttiled(c->next)))
 			return;
 	pop(c);
+}
+
+/**
+ * doing the do{}while(); trick because sometimes lstat()
+ * cannot be trusted on /proc entries, something connected
+ * with Linux POSIX compliancy
+ */
+char *
+get_dwm_path() {
+	struct stat s;
+	int r, length, rate = 42;
+	char *path = NULL;
+
+	if(lstat("/proc/self/exe", &s) == -1) {
+		perror("lstat:");
+		return NULL;
+	}
+
+	length = s.st_size + 1 - rate;
+
+	do {
+		length+=rate;
+
+		free(path);
+		path = malloc(sizeof(char) * length);
+
+		if(path == NULL) {
+			perror("malloc:");
+			return NULL;
+		}
+
+		r = readlink("/proc/self/exe", path, length);
+
+		if(r == -1) {
+			perror("readlink:");
+			return;
+		}
+	} while(r >= length);
+
+	path[r] = '\0';
+	return path;
+}
+
+/**
+ * self-restart
+ * Initially inspired by: Yu-Jie Lin
+ * https://sites.google.com/site/yjlnotes/notes/dwm
+ */
+void
+self_restart(const Arg *arg) {
+	char *const argv[] = {get_dwm_path(), NULL};
+
+	if(argv[0] == NULL) {
+		return;
+	}
+
+	execv(argv[0], argv);
+
+	// need to clean after ourselves
+	free(argv[0]);
 }
 
 int
