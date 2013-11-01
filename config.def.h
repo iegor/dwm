@@ -67,14 +67,17 @@ static const Layout layouts[] = {
 
 /* commands */
 static const char *dmenucmd[] = { "dmenu_run", "-fn", font, "-nb", normbgcolor, "-nf", normfgcolor, "-sb", selbgcolor, "-sf", selfgcolor, NULL };
-static const char *termcmd_user[]  = { "urxvt_user", NULL };
-static const char *termcmd_root[]  = { "urxvt_root", NULL };
+static const char *termcmd_user[]  = { "konsole", NULL };
+static const char *konqueror_cmd[] = { "konqueror", "--profile", "filemanagement", "${HOME}/", NULL };
+static const char *konqueror_web_cmd[] = { "konqueror", "--profile", "webbrowsing", NULL };
 static const char *lock_command[] = { "/usr/bin/xscreensaver-command", "-lock", NULL };
 
 static Key keys[] = {
 	/* modifier                     key        function        argument */
 	{ MODKEY,                       XK_p,      spawn,          {.v = dmenucmd } },
 	{ MODKEY|ShiftMask,             XK_Return, spawn,          {.v = termcmd_user } },
+	{ MODKEY|ControlMask,           XK_w,      spawn,          {.v = konqueror_web_cmd } },
+	{ Mod4Mask,                     XK_e,      spawn,          {.v = konqueror_cmd } },
 	{ MODKEY,                       XK_b,      togglebar,      {0} },
 	{ MODKEY,                       XK_j,      focusstack,     {.i = +1 } },
 	{ MODKEY,                       XK_k,      focusstack,     {.i = -1 } },
