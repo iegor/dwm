@@ -1379,17 +1379,18 @@ maprequest(XEvent *e) {
 #endif
     /* check if it is a kde dockapp */
     if(XGetWindowProperty(dpy, ev->window, atom_kde_systray, 0l, 1l, False, XA_WINDOW, &ajunk, &ijunk, &uljunk, &uljunk, (unsigned char **)&data) == Success) {
-        if(data) {
-            sendevent(systray->win, netatom[NetSystemTrayOP], NoEventMask, CurrentTime, SYSTEM_TRAY_REQUEST_DOCK, ev->window, 0, 0);
+        if(data != NULL) {
+            if(sendevent(systray->win, netatom[NetSystemTrayOP], NoEventMask, CurrentTime, SYSTEM_TRAY_REQUEST_DOCK, ev->window, 0, 0)) {
 #ifdef DEBUG
-            printf("kde stray window found.\n");
+                printf("kde stray window found.\n");
 #endif
-            /* resizebarwin(selmon); */
-            /* updatesystray(); */
+                resizebarwin(selmon);
+                updatesystray();
+            }
+            XFree((void*)data);
+            data=0;
+            return;
         }
-        XFree((void*)data);
-        data=0;
-        return;
     }
 
     Client *i = wintosystrayicon(ev->window);
