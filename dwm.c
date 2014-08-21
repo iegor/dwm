@@ -1,4 +1,7 @@
-/* See LICENSE file for copyright and license details.
+/*
+ * kate: space-indent on; tab-width 4; indent-width 4; indent-mode cstyle; encoding UTF-8;
+ * vi: ts=8 sts=4 sw=4
+ * See LICENSE file for copyright and license details.
  *
  * dynamic window manager is designed like any other X client as well. It is
  * driven through handling X events. In contrast to other X clients, a window
@@ -372,6 +375,7 @@ static void (*handler[LASTEvent]) (XEvent *) = {
 	[UnmapNotify] = unmapnotify
 };
 static Atom wmatom[WMLast], netatom[NetLast], xatom[XLast];
+static Atom atom_kde_systray;
 static Bool running = True;
 static Cursor cursor[CurLast];
 static Display *dpy;
@@ -631,62 +635,80 @@ clearurgent(Client *c) {
 
 void
 clientmessage(XEvent *e) {
+	Client *c = NULL;
 	XWindowAttributes wa;
 	XSetWindowAttributes swa;
 	XClientMessageEvent *cme = &e->xclient;
-	Client *c = wintoclient(cme->window);
-	if(showsystray && cme->window == systray->win && cme->message_type == netatom[NetSystemTrayOP]) {
-		/* add systray icons */
-		if(cme->data.l[1] == SYSTEM_TRAY_REQUEST_DOCK) {
-			if(!(c = (Client *)calloc(1, sizeof(Client))))
-				die("fatal: could not malloc() %u bytes\n", sizeof(Client));
-			c->win = cme->data.l[2];
-			c->mon = selmon;
-			c->next = systray->icons;
-			systray->icons = c;
-			XGetWindowAttributes(dpy, c->win, &wa);
-			c->x = c->oldx = c->y = c->oldy = 0;
-			c->w = c->oldw = wa.width;
-			c->h = c->oldh = wa.height;
-			c->oldbw = wa.border_width;
-			c->bw = 0;
-			c->isfloating = True;
-			/* reuse tags field as mapped status */
-			c->tags = 1;
-			updatesizehints(c);
-			updatesystrayicongeom(c, wa.width, wa.height);
-			XAddToSaveSet(dpy, c->win);
-			XSelectInput(dpy, c->win, StructureNotifyMask | PropertyChangeMask | ResizeRedirectMask);
-			XReparentWindow(dpy, c->win, systray->win, 0, 0);
-			/* use parents background pixmap */
-			swa.background_pixmap = ParentRelative;
-			swa.background_pixel  = dc.norm[ColBG];
-			XChangeWindowAttributes(dpy, c->win, CWBackPixmap|CWBackPixel, &swa);
-			sendevent(c->win, netatom[Xembed], StructureNotifyMask, CurrentTime, XEMBED_EMBEDDED_NOTIFY, 0 , systray->win, XEMBED_EMBEDDED_VERSION);
-			/* FIXME not sure if I have to send these events, too */
-			sendevent(c->win, netatom[Xembed], StructureNotifyMask, CurrentTime, XEMBED_FOCUS_IN, 0 , systray->win, XEMBED_EMBEDDED_VERSION);
-			sendevent(c->win, netatom[Xembed], StructureNotifyMask, CurrentTime, XEMBED_WINDOW_ACTIVATE, 0 , systray->win, XEMBED_EMBEDDED_VERSION);
-			sendevent(c->win, netatom[Xembed], StructureNotifyMask, CurrentTime, XEMBED_MODALITY_ON, 0 , systray->win, XEMBED_EMBEDDED_VERSION);
-			resizebarwin(selmon);
-			updatesystray();
-			setclientstate(c, NormalState);
-		}
-		return;
-	}
-	if(!c)
-		return;
-	if(cme->message_type == netatom[NetWMState]) {
+    if(cme->message_type == netatom[NetWMState]) {
+#ifdef DEBUG
+        printf("message: wm_state\n");
+#endif
+        c = wintoclient(cme->window);
+        if(!c) return;
 		if(cme->data.l[1] == netatom[NetWMFullscreen] || cme->data.l[2] == netatom[NetWMFullscreen])
 			setfullscreen(c, (cme->data.l[0] == 1 /* _NET_WM_STATE_ADD    */
 			              || (cme->data.l[0] == 2 /* _NET_WM_STATE_TOGGLE */ && !c->isfullscreen)));
 	}
 	else if(cme->message_type == netatom[NetActiveWindow]) {
+#ifdef DEBUG
+        printf("message: active_window\n");
+#endif
+        c = wintoclient(cme->window);
+        if(!c) return;
 		if(!ISVISIBLE(c)) {
 			c->mon->seltags ^= 1;
 			c->mon->tagset[c->mon->seltags] = c->tags;
 		}
 		pop(c);
 	}
+    else if(cme->message_type == netatom[NetSystemTrayOP]) {
+#ifdef DEBUG
+        printf("message: stray\n");
+#endif
+        if(showsystray && cme->window == systray->win) {
+            /* add systray icons */
+            if(cme->data.l[1] == SYSTEM_TRAY_REQUEST_DOCK) {
+                c = (Client *)calloc(1, sizeof(Client));
+                if(!c) die("fatal: could not malloc() %u bytes\n", sizeof(Client));
+                c->win = cme->data.l[2];
+                c->mon = selmon;
+                c->next = systray->icons;
+                systray->icons = c;
+                XGetWindowAttributes(dpy, c->win, &wa);
+                c->x = c->oldx = c->y = c->oldy = 0;
+                c->w = c->oldw = wa.width;
+                c->h = c->oldh = wa.height;
+                c->oldbw = wa.border_width;
+                c->bw = 0;
+                c->isfloating = True;
+                /* reuse tags field as mapped status */
+                c->tags = 1;
+                updatesizehints(c);
+#ifdef DEBUG
+                printf("embed: %i x %i window to %i;%i\n", c->w, c->h, wa.x, wa.y);
+#endif
+                updatesystrayicongeom(c, wa.width, wa.height);
+                XAddToSaveSet(dpy, c->win);
+                XSelectInput(dpy, c->win, StructureNotifyMask|PropertyChangeMask|ResizeRedirectMask);
+                XReparentWindow(dpy, c->win, systray->win, 0, 0);
+                /* use parents background pixmap */
+                swa.background_pixmap = ParentRelative;
+                swa.background_pixel  = dc.norm[ColBG];
+                /* swa.event_mask = StructureNotifyMask|SubstructureNotifyMask|EnterWindowMask; */
+                XChangeWindowAttributes(dpy, c->win, CWBackPixmap|CWBackPixel, &swa);
+                /* Start XEMBED protocol */
+                sendevent(c->win, netatom[Xembed], NoEventMask, CurrentTime, XEMBED_EMBEDDED_NOTIFY, 0 , systray->win, XEMBED_EMBEDDED_VERSION);
+                /* FIXME not sure if I have to send these events, too */
+                sendevent(c->win, netatom[Xembed], NoEventMask, CurrentTime, XEMBED_FOCUS_IN, 0, systray->win, XEMBED_EMBEDDED_VERSION);
+                sendevent(c->win, netatom[Xembed], NoEventMask, CurrentTime, XEMBED_WINDOW_ACTIVATE, 0 , systray->win, XEMBED_EMBEDDED_VERSION);
+                sendevent(c->win, netatom[Xembed], NoEventMask, CurrentTime, XEMBED_MODALITY_ON, 0 , systray->win, XEMBED_EMBEDDED_VERSION);
+                resizebarwin(selmon);
+                updatesystray();
+                setclientstate(c, NormalState);
+            }
+            return;
+        }
+    }
 }
 
 void
@@ -713,7 +735,7 @@ configurenotify(XEvent *e) {
 	XConfigureEvent *ev = &e->xconfigure;
 	Bool dirty;
 
-	// TODO: updategeom handling sucks, needs to be simplified
+	/* TODO: updategeom handling sucks, needs to be simplified */
 	if(ev->window == root) {
 		dirty = (sw != ev->width || sh != ev->height);
 		sw = ev->width;
@@ -724,7 +746,7 @@ configurenotify(XEvent *e) {
 			dc.drawable = XCreatePixmap(dpy, root, sw, bh, DefaultDepth(dpy, screen));
 			updatebars();
 			for(m = mons; m; m = m->next)
-//				XMoveResizeWindow(dpy, m->barwin, m->wx, m->by, m->ww, bh);
+                /* XMoveResizeWindow(dpy, m->barwin, m->wx, m->by, m->ww, bh); */
 				resizebarwin(m);
 			focus(NULL);
 			arrange(NULL);
@@ -810,6 +832,9 @@ destroynotify(XEvent *e) {
 	if((c = wintoclient(ev->window)))
 		unmanage(c, True);
 	else if((c = wintosystrayicon(ev->window))) {
+#ifdef DEBUG
+        printf("destroynotify\n");
+#endif
 		removesystrayicon(c);
 		resizebarwin(selmon);
 		updatesystray();
@@ -1343,19 +1368,43 @@ void
 maprequest(XEvent *e) {
 	static XWindowAttributes wa;
 	XMapRequestEvent *ev = &e->xmaprequest;
+    Atom ajunk;
+    int ijunk;
+    unsigned long *data = 0l, uljunk;
+    Window wn;
 
-	Client *i;
-	if((i = wintosystrayicon(ev->window))) {
-		sendevent(i->win, netatom[Xembed], StructureNotifyMask, CurrentTime, XEMBED_WINDOW_ACTIVATE, 0, systray->win, XEMBED_EMBEDDED_VERSION);
-		resizebarwin(selmon);
-		updatesystray();
-	}
-	if(!XGetWindowAttributes(dpy, ev->window, &wa))
-		return;
-	if(wa.override_redirect)
-		return;
-	if(!wintoclient(ev->window))
-		manage(ev->window, &wa);
+    if(!XGetWindowAttributes(dpy, ev->window, &wa)) return;
+#ifdef DEBUG
+    printf("maprequest\n");
+#endif
+    /* check if it is a kde dockapp */
+    if(XGetWindowProperty(dpy, ev->window, atom_kde_systray, 0l, 1l, False, XA_WINDOW, &ajunk, &ijunk, &uljunk, &uljunk, (unsigned char **)&data) == Success) {
+        if(data) {
+            sendevent(systray->win, netatom[NetSystemTrayOP], NoEventMask, CurrentTime, SYSTEM_TRAY_REQUEST_DOCK, ev->window, 0, 0);
+#ifdef DEBUG
+            printf("kde stray window found.\n");
+#endif
+            /* resizebarwin(selmon); */
+            /* updatesystray(); */
+        }
+        XFree((void*)data);
+        data=0;
+        return;
+    }
+
+    Client *i = wintosystrayicon(ev->window);
+    if(i != NULL) {
+#ifdef DEBUG
+        printf("maprequest: stray\n");
+#endif
+        sendevent(i->win, netatom[Xembed], StructureNotifyMask, CurrentTime, XEMBED_WINDOW_ACTIVATE, 0, systray->win,
+		  XEMBED_EMBEDDED_VERSION);
+        resizebarwin(selmon);
+        updatesystray();
+    }
+
+	if(wa.override_redirect) return;
+	if(!wintoclient(ev->window)) manage(ev->window, &wa);
 }
 
 void
@@ -1522,15 +1571,17 @@ recttomon(int x, int y, int w, int h) {
 		}
 	return r;
 }
+
 void
 removesystrayicon(Client *i) {
 	Client **ii;
-
-	if(!showsystray || !i)
-		return;
+	
+	if(!showsystray || !i) return;
 	for(ii = &systray->icons; *ii && *ii != i; ii = &(*ii)->next);
-	if(ii)
-		*ii = i->next;
+	if(ii) *ii = i->next;
+#ifdef DEBUG
+	printf("removesticon: %X\n", i);
+#endif
 	free(i);
 }
 
@@ -1621,6 +1672,9 @@ resizerequest(XEvent *e) {
 
 	if((i = wintosystrayicon(ev->window))) {
 		updatesystrayicongeom(i, ev->width, ev->height);
+#ifdef DEBUG
+        printf("resizerequest: %i x %i\n", ev->width, ev->height);
+#endif
 		resizebarwin(selmon);
 		updatesystray();
 	}
@@ -1801,7 +1855,7 @@ setmfact(const Arg *arg) {
 	float f;
 	if(!arg || !selmon->lt[selmon->sellt]->arrange)
 		return;
-  // determine lowest enabled tag
+  /* determine lowest enabled tag */
   unsigned int tagset = selmon->tagset[selmon->seltags];
   unsigned int i=0;
   for(i=0; i <= LENGTH(tags); i++) {
@@ -1853,6 +1907,8 @@ setup(void) {
 	xatom[Xembed] = XInternAtom(dpy, "_XEMBED", False);
 	xatom[XembedInfo] = XInternAtom(dpy, "_XEMBED_INFO", False);
 	netatom[NetClientList] = XInternAtom(dpy, "_NET_CLIENT_LIST", False);
+
+    atom_kde_systray = XInternAtom(dpy, "_KDE_NET_WM_SYSTEM_TRAY_WINDOW_FOR", False);
 	/* init cursors */
 	cursor[CurNormal] = XCreateFontCursor(dpy, XC_left_ptr);
 	cursor[CurResize] = XCreateFontCursor(dpy, XC_sizing);
@@ -1964,6 +2020,7 @@ tile(Monitor *m) {
 	}
 	else
 		mw = m->ww;
+
 	for(i = my = ty = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next), i++)
 		if(i < m->nmaster) {
 			h = (m->wh - my) / (MIN(n, m->nmaster) - i);
@@ -2028,7 +2085,7 @@ toggleview(const Arg *arg) {
 	unsigned int newtagset = selmon->tagset[selmon->seltags] ^ (arg->ui & TAGMASK);
 	if(newtagset) {
 		selmon->tagset[selmon->seltags] = newtagset;
-    // determine lowest enabled tag
+    /* determine lowest enabled tag */
     unsigned int tagset = selmon->tagset[selmon->seltags];
     unsigned int i=0;
     for(i=0; i <= LENGTH(tags); i++) {
@@ -2093,6 +2150,9 @@ unmapnotify(XEvent *e) {
 			unmanage(c, False);
 	}
 	else if((c = wintosystrayicon(ev->window))) {
+#ifdef DEBUG
+        printf("unmapnotify\n");
+#endif
 		removesystrayicon(c);
 		resizebarwin(selmon);
 		updatesystray();
@@ -2293,6 +2353,10 @@ updatesizehints(Client *c) {
 		c->maxa = c->mina = 0.0;
 	c->isfixed = (c->maxw && c->minw && c->maxh && c->minh
 	             && c->maxw == c->minw && c->maxh == c->minh);
+#ifdef DEBUG
+    printf("updateszhints: base(%ix%i) min(%ix%i) max(%ix%i) inc(%ix%i)\n", size.base_width, size.base_height,
+           size.min_width, size.min_height, size.max_width, size.max_height, size.width_inc, size.height_inc);
+#endif
 }
 
 void
@@ -2329,6 +2393,9 @@ updatesystrayicongeom(Client *i, int w, int h) {
 				i->w = (int) ((float)bh * ((float)i->w / (float)i->h));
 			i->h = bh;
 		}
+#ifdef DEBUG
+        printf("updatesticongeom: %i x %i\n", i->w, i->h);
+#endif
 	}
 }
 
@@ -2336,11 +2403,15 @@ void
 updatesystrayiconstate(Client *i, XPropertyEvent *ev) {
 	long flags;
 	int code = 0;
-
-	if(!showsystray || !i || ev->atom != xatom[XembedInfo] ||
-			!(flags = getatomprop(i, xatom[XembedInfo])))
-		return;
-
+#ifdef DEBUG
+    printf("updatesystrayiconstate: try \n");
+#endif
+    if(!showsystray || !i || ev->atom != xatom[XembedInfo] || !(flags = getatomprop(i, xatom[XembedInfo]))) {
+        return;
+    }
+#ifdef DEBUG
+    printf("updatesystrayiconstate: \n");
+#endif
 	if(flags & XEMBED_MAPPED && !i->tags) {
 		i->tags = 1;
 		code = XEMBED_WINDOW_ACTIVATE;
@@ -2395,9 +2466,14 @@ updatesystray(void) {
 		}
 	}
 	for(w = 0, i = systray->icons; i; i = i->next) {
+        /* make sure the background color stays the same */
+        /* wa.background_pixel = scheme[SchemeNorm].bg->rgb; */
 		XMapRaised(dpy, i->win);
 		w += systrayspacing;
 		XMoveResizeWindow(dpy, i->win, (i->x = w), 0, i->w, i->h);
+#ifdef DEBUG
+        printf("win: %x(%ix%i) at %i;0\n", i->win, i->w, i->h, w);
+#endif
 		w += i->w;
 		if(i->mon != selmon)
 			i->mon = selmon;
@@ -2492,12 +2568,11 @@ wintomon(Window w) {
 
 Client *
 wintosystrayicon(Window w) {
-	Client *i = NULL;
+    Client *i = NULL;
 
-	if(!showsystray || !w)
-		return i;
-	for(i = systray->icons; i && i->win != w; i = i->next) ;
-	return i;
+    if(!showsystray || !w) return i;
+    for(i = systray->icons; i && i->win != w; i = i->next) ;
+    return i;
 }
 
 /* There's no way to check accesses to destroyed windows, thus those cases are
