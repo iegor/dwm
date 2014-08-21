@@ -1,0 +1,9 @@
+# KDevelop Custom Project File List
+Makefile
+config.def.h
+draw.c
+draw.h
+dwm.c
+transient.c
+util.c
+util.h
