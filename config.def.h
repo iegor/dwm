@@ -15,13 +15,17 @@ static const Bool showsystray       = True;     /* False means no systray */
 static const Bool showbar           = True;     /* False means no bar */
 static const Bool topbar            = True;     /* False means bottom bar */
 
+#define tag_code (1 << 8)
+#define tag_build (2 << 8)
+#define tag_skype (3 << 8)
+#define tag_web (4 << 8)
+
 /* tagging */
 static Tag tags[] = {
-  { "1", 0.51f },
-  { "2", 0.51f },
-  { "3", 0.51f },
-  { "skype", 0.81f },
-  { "web", 0.51f }
+  { "Coding", 0.51f }, /* Coding */
+  { "Build", 0.51f }, /* Build */
+  { "Skype", 0.81f }, /* Skype */
+  { "Web", 0.51f } /* Web */
 };
 
 static const Rule rules[] = {
@@ -61,8 +65,8 @@ static const Bool resizehints = False; /* True means respect size hints in tiled
 
 static const Layout layouts[] = {
 	/* symbol     arrange function */
-	{ "[]=",      tile },    /* first entry is default */
-	{ "><>",      NULL },    /* no layout function means floating behavior */
+	{ "[T]",      tile },    /* first entry is default */
+	{ "[F]",      NULL },    /* no layout function means floating behavior */
 	{ "[M]",      monocle },
 };
 
