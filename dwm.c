@@ -1361,10 +1361,27 @@ manage(Window w, XWindowAttributes *wa) {
   Client *c, *t = NULL;
   Window trans = None;
   XWindowChanges wc;
-        XkbStateRec kbd_state;
+  XkbStateRec kbd_state;
+  Atom ajunk;
+  int ijunk;
+  unsigned long *data = 0l, uljunk;
+
+  /* check if it is a kde dockapp */
+  if(XGetWindowProperty(dpy, w, atom_kde_systray, 0l, 1l, False, XA_WINDOW, &ajunk, &ijunk, &uljunk, &uljunk,
+     (unsigned char **)&data) == Success)   {
+    if(data != NULL) {
+      if(sendevent(systray->win, netatom[NetSystemTrayOP], NoEventMask, CurrentTime, SYSTEM_TRAY_REQUEST_DOCK, w, 0, 0)) {
+        resizebarwin(selmon);
+        updatesystray();
+      }
+      XFree((void*)data);
+      data=0;
+      return;
+    }
+  }
 
   if(!(c = calloc(1, sizeof(Client))))
-    die("fatal: could not malloc() %u bytes\n", sizeof(Client));
+    die("fatal: can't malloc() %u bytes\n", sizeof(Client));
   c->win = w;
   updatetitle(c);
   if(XGetTransientForHint(dpy, w, &trans) && (t = wintoclient(trans))) {
@@ -1392,10 +1409,10 @@ manage(Window w, XWindowAttributes *wa) {
              && (c->x + (c->w / 2) < c->mon->wx + c->mon->ww)) ? bh : c->mon->my);
   c->bw = borderpx;
 
-    if(c->iscentered) {
-        c->x = (c->mon->mw - WIDTH(c)) / 2;
-        c->y = (c->mon->mh - HEIGHT(c)) / 2;
-    }
+  if(c->iscentered) {
+    c->x = (c->mon->mw - WIDTH(c)) / 2;
+    c->y = (c->mon->mh - HEIGHT(c)) / 2;
+  }
 
   wc.border_width = c->bw;
   XConfigureWindow(dpy, w, CWBorderWidth, &wc);
@@ -1422,8 +1439,8 @@ manage(Window w, XWindowAttributes *wa) {
   arrange(c->mon);
   XMapWindow(dpy, c->win);
   focus(NULL);
-        XkbGetState(dpy, XkbUseCoreKbd, &kbd_state);
-        c->kbdgrp = kbd_state.group;
+  XkbGetState(dpy, XkbUseCoreKbd, &kbd_state);
+  c->kbdgrp = kbd_state.group;
 }
 
 void
@@ -1439,30 +1456,11 @@ void
 maprequest(XEvent *e) {
   static XWindowAttributes wa;
   XMapRequestEvent *ev = &e->xmaprequest;
-  Atom ajunk;
-  int ijunk;
-  unsigned long *data = 0l, uljunk;
-  Window wn;
 
   if(!XGetWindowAttributes(dpy, ev->window, &wa)) return;
 #ifdef DEBUG
   printf("maprequest\n");
 #endif
-  /* check if it is a kde dockapp */
-  if(XGetWindowProperty(dpy, ev->window, atom_kde_systray, 0l, 1l, False, XA_WINDOW, &ajunk, &ijunk, &uljunk, &uljunk, (unsigned char **)&data) == Success)   {
-    if(data != NULL) {
-      if(sendevent(systray->win, netatom[NetSystemTrayOP], NoEventMask, CurrentTime, SYSTEM_TRAY_REQUEST_DOCK, ev->window, 0, 0)) {
-#ifdef DEBUG
-        printf("kde stray window found.\n");
-#endif
-        resizebarwin(selmon);
-        updatesystray();
-      }
-      XFree((void*)data);
-      data=0;
-      return;
-    }
-  }
 
   Client *i = wintosystrayicon(ev->window);
   if(i != NULL) {
