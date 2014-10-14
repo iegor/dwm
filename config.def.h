@@ -67,12 +67,13 @@ static const Layout layouts[] = {
 };
 
 /* key definitions */
-#define MODKEY Mod1Mask
+#define MODKEY Mod4Mask
+#define TAG_MODKEY Mod1Mask
 #define TAGKEYS(KEY,TAG) \
-	{ MODKEY,                       KEY,      view,           {.ui = 1 << TAG} }, \
-	{ MODKEY|ControlMask,           KEY,      toggleview,     {.ui = 1 << TAG} }, \
-	{ MODKEY|ShiftMask,             KEY,      tag,            {.ui = 1 << TAG} }, \
-	{ MODKEY|ControlMask|ShiftMask, KEY,      toggletag,      {.ui = 1 << TAG} },
+	{ KeyPress, TAG_MODKEY,                       KEY,      view,           {.ui = 1 << TAG} }, \
+	{ KeyPress, TAG_MODKEY|ControlMask,           KEY,      toggleview,     {.ui = 1 << TAG} }, \
+	{ KeyPress, TAG_MODKEY|ShiftMask,             KEY,      tag,            {.ui = 1 << TAG} }, \
+	{ KeyPress, TAG_MODKEY|ControlMask|ShiftMask, KEY,      toggletag,      {.ui = 1 << TAG} },
 
 /* helper for spawning shell commands in the pre dwm-5.0 fashion */
 #define SHCMD(cmd) { .v = (const char*[]){ "/bin/sh", "-c", cmd, NULL } }
@@ -88,43 +89,43 @@ static const char *lock_command[] = { "/usr/bin/xscreensaver-command", "-lock", 
 static const char *alsamixer_cmd[] = { "urxvt_user", "-e", "\'alsamixer --view=all\'", NULL };
 
 static Key keys[] = {
-	/* modifier                     key        function        argument */
-	{ MODKEY,                       XK_p,      spawn,          {.v = dmenucmd } },
-	{ MODKEY,                       XK_Return, spawn,          {.v = termcmd_urxvt } },
-	{ MODKEY|ShiftMask,             XK_t,      spawn,          {.v = termcmd_user} },
-	{ MODKEY|ControlMask,           XK_t,      spawn,          {.v = termcmd_konsole} },
-	{ ControlMask|ShiftMask,        XK_w,      spawn,          {.v = alsamixer_cmd } },
-	{ Mod4Mask|ShiftMask,           XK_w,      spawn,          {.v = konqueror_web_cmd } },
-	{ Mod4Mask|ShiftMask,           XK_e,      spawn,          {.v = konqueror_cmd } },
-	{ MODKEY,                       XK_b,      togglebar,      {0} },
-	{ MODKEY,                       XK_j,      focusstack,     {.i = +1 } },
-	{ MODKEY,                       XK_k,      focusstack,     {.i = -1 } },
-	{ MODKEY,                       XK_i,      incnmaster,     {.i = +1 } },
-	{ MODKEY,                       XK_d,      incnmaster,     {.i = -1 } },
-	{ MODKEY,                       XK_h,      setmfact,       {.f = -0.05} },
-	{ MODKEY,                       XK_l,      setmfact,       {.f = +0.05} },
-	{ MODKEY|ShiftMask,                       XK_Return, zoom,           {0} },
-	{ MODKEY,                       XK_Tab,    view,           {0} },
-	{ MODKEY|ShiftMask,             XK_c,      killclient,     {0} },
-	{ MODKEY,                       XK_t,      setlayout,      {.v = &layouts[0]} },
-	{ MODKEY,                       XK_f,      setlayout,      {.v = &layouts[1]} },
-	{ MODKEY,                       XK_m,      setlayout,      {.v = &layouts[2]} },
-	{ MODKEY,                       XK_space,  setlayout,      {0} },
-	{ MODKEY|ShiftMask,             XK_space,  togglefloating, {0} },
-	{ MODKEY,                       XK_0,      view,           {.ui = ~0 } },
-	{ MODKEY|ShiftMask,             XK_0,      tag,            {.ui = ~0 } },
-	{ MODKEY,                       XK_comma,  focusmon,       {.i = -1 } },
-	{ MODKEY,                       XK_period, focusmon,       {.i = +1 } },
-	{ MODKEY|ShiftMask,             XK_comma,  tagmon,         {.i = -1 } },
-	{ MODKEY|ShiftMask,             XK_period, tagmon,         {.i = +1 } },
-	TAGKEYS(                        XK_1,                      0)
-	TAGKEYS(                        XK_2,                      1)
-	TAGKEYS(                        XK_3,                      2)
-	TAGKEYS(                        XK_4,                      3)
-	TAGKEYS(                        XK_5,                      4)
-	{ MODKEY|ShiftMask,             XK_r,      self_restart,   {0} },
-	{ MODKEY|ShiftMask,             XK_q,      quit,           {0} },
-	{ MODKEY|ControlMask,           XK_l,      spawn,          {.v = lock_command } },
+	/* type      modifier                     key        function        argument */
+	{ KeyPress, MODKEY,                       XK_p,      spawn,          {.v = dmenucmd } },
+	{ KeyPress, MODKEY,                       XK_Return, spawn,          {.v = termcmd_urxvt } },
+	{ KeyPress, MODKEY|ShiftMask,             XK_t,      spawn,          {.v = termcmd_user} },
+	{ KeyPress, MODKEY|ControlMask,           XK_t,      spawn,          {.v = termcmd_konsole} },
+	{ KeyPress, ControlMask|ShiftMask,        XK_w,      spawn,          {.v = alsamixer_cmd } },
+	{ KeyPress, Mod4Mask|ShiftMask,           XK_w,      spawn,          {.v = konqueror_web_cmd } },
+	{ KeyPress, Mod4Mask|ShiftMask,           XK_e,      spawn,          {.v = konqueror_cmd } },
+	{ KeyPress, MODKEY,                       XK_b,      togglebar,      {0} },
+	{ KeyPress, MODKEY,                       XK_j,      focusstack,     {.i = +1 } },
+	{ KeyPress, MODKEY,                       XK_k,      focusstack,     {.i = -1 } },
+	{ KeyPress, MODKEY,                       XK_i,      incnmaster,     {.i = +1 } },
+	{ KeyPress, MODKEY,                       XK_d,      incnmaster,     {.i = -1 } },
+	{ KeyPress, MODKEY,                       XK_h,      setmfact,       {.f = -0.05} },
+	{ KeyPress, MODKEY,                       XK_l,      setmfact,       {.f = +0.05} },
+	{ KeyPress, MODKEY|ShiftMask,                       XK_Return, zoom,           {0} },
+	{ KeyPress, MODKEY,                       XK_Tab,    view,           {0} },
+	{ KeyPress, MODKEY|ShiftMask,             XK_c,      killclient,     {0} },
+	{ KeyPress, MODKEY,                       XK_t,      setlayout,      {.v = &layouts[0]} },
+	{ KeyPress, MODKEY,                       XK_f,      setlayout,      {.v = &layouts[1]} },
+	{ KeyPress, MODKEY,                       XK_m,      setlayout,      {.v = &layouts[2]} },
+	{ KeyPress, MODKEY,                       XK_space,  setlayout,      {0} },
+	{ KeyPress, MODKEY|ShiftMask,             XK_space,  togglefloating, {0} },
+	{ KeyPress, MODKEY,                       XK_0,      view,           {.ui = ~0 } },
+	{ KeyPress, MODKEY|ShiftMask,             XK_0,      tag,            {.ui = ~0 } },
+	{ KeyPress, MODKEY,                       XK_comma,  focusmon,       {.i = -1 } },
+	{ KeyPress, MODKEY,                       XK_period, focusmon,       {.i = +1 } },
+	{ KeyPress, MODKEY|ShiftMask,             XK_comma,  tagmon,         {.i = -1 } },
+	{ KeyPress, MODKEY|ShiftMask,             XK_period, tagmon,         {.i = +1 } },
+	TAGKEYS(                                  XK_1,                      0)
+	TAGKEYS(                                  XK_2,                      1)
+	TAGKEYS(                                  XK_3,                      2)
+	TAGKEYS(                                  XK_4,                      3)
+	TAGKEYS(                                  XK_5,                      4)
+	{ KeyPress, MODKEY|ShiftMask,             XK_r,      self_restart,   {0} },
+	{ KeyPress, MODKEY|ShiftMask,             XK_q,      quit,           {0} },
+	{ KeyPress, MODKEY|ControlMask,           XK_l,      spawn,          {.v = lock_command } },
 };
 
 /* button definitions */
