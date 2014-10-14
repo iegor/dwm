@@ -33,29 +33,38 @@ static const Rule rules[] = {
 	 *	WM_CLASS(STRING) = instance, class
 	 *	WM_NAME(STRING) = title
 	 */
-	/* class      instance    title       tags mask     isfloating   monitor */
-	{ "Gimp",     NULL,       NULL,       0,            True,        -1 },
-	{ "Firefox",  NULL,       NULL,       5 << 8,       False,       -1 },
-	{ "KDevelop", NULL,       NULL,       2 << 8,       False,       -1 },
-	{ "Wine",     NULL,       NULL,       0,            True,        -1 },
+	/* class      instance    title       tags mask   iscentered     isfloating   monitor */
+	{ "Gimp",     NULL,       NULL,       0,          False,            True,        -1 },
+	{ "Firefox",  NULL,       NULL,       tag_web,    False,       False,       -1 },
+	{ "luakit",   NULL,       NULL,       tag_web,    False,       False,       -1 },
+	{ "Surf",     "surf",     NULL,       tag_web,    False,       False,       -1 },
+	{ "Wine",     NULL,       NULL,       0,          True,            True,        -1 },
+	{ "MPlayer",  NULL,       NULL,       0,          True,            True,        -1 },
 	/* Skype windows */
-	{ "Skype",    NULL,       "Skype™ 2.2 (Beta) for Linux",       4
-	<< 8,       False,       -1 },
-	{ "Skype",    NULL,       "Conference Call -",       4 << 8,       False,       -1 },
-	{ "Skype",    NULL,       " - Skype™ Chat",       4 << 8,       False,       -1 },
-	{ "Skype",    NULL,       "- Skype™ (Beta)",       4 << 8,       False,       -1 },
-	{ "Skype",    NULL,       NULL,       4 << 8,       False,       -1 },
+	{ "Skype",    NULL,       "Skype™ 2.2 (Beta)",      tag_skype, False,       False,       -1 },
+	{ "Skype",    NULL,       "Conference Call -",      tag_skype, True,       True,        -1 },
+	{ "Skype",    NULL,       "Chat",          tag_skype, False,       False,       -1 },
+	/* { "Skype",    NULL,       "- Skype",        tag_skype, False,       False,       -1 }, */
 	/* Alsamixer window */
-	{ "URxvt",    "urxvt",    "alsamixer", 0,           True,        -1 },
-	{ "st-256color", "st-256color", "alsamixer", 0,     True,        -1 },
+	{ "URxvt",    "urxvt",    "alsamixer", 0, False,           True,        -1 },
+	{ "st-256color", "st-256color", "alsamixer", 0, False,     True,        -1 },
+    /* Pulse audio controls */
+    { "Pavucontrol", "pavucontrol", NULL, 0, False, True, -1 },
+    /* Top task dispatcher */
+	{ "URxvt",    "urxvt",    "top",       0, False,           True,        -1 },
+	{ "st-256color", "st-256color", "top", 0, False,     True,        -1 },
+    /* Youtube launch video script */
+	{ "URxvt",    "urxvt",    "ytw.sh",       0, False,           True,        -1 },
+	{ "st-256color", "st-256color", "ytw.sh", 0, False,     True,        -1 },
     /* Synergy_s window */
-	{ "URxvt",    "urxvt",    "synergy_s", 0,           True,        -1 },
+	{ "URxvt",          "urxvt",            "synergy_s", 0, False,           True,        -1 },
+	{ "st-256color",    "st-256color",      "synergy_s", 0, False,           True,        -1 },
     /* Xine windows */
-    { "xine",     NULL,       NULL,       0,            True,        -1 },
+    { "xine",     NULL,       NULL,       0, False,            True,        -1 },
     /* Vnc viewer windows */
-    { "Vncviewer", "vncviewer", "QEMU ", 0, True, -1 },
-    { "Vncviewer", "vncviewer", "VNC authentication", 0, True, -1 },
-    { "Vncviewer", "vncviewer", "TigerVNC Viewer", 0, True, -1 }
+    { "Vncviewer", "vncviewer", "QEMU ", 0, False, True, -1 },
+    { "Vncviewer", "vncviewer", "VNC authentication", 0, False, True, -1 },
+    { "Vncviewer", "vncviewer", "TigerVNC Viewer", 0, False, True, -1 }
 };
 
 /* layout(s) */
