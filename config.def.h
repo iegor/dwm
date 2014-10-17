@@ -72,6 +72,13 @@ static const Rule rules[] = {
 static const int nmaster      = 1;    /* number of clients in master area */
 static const Bool resizehints = False; /* True means respect size hints in tiled resizals */
 
+/* xkb frontend */
+static const Bool showxkb = True; /* False means no xkb layout text */
+static const char *xkb_layouts[] = {
+    "en",
+    "ru",
+};
+
 static const Layout layouts[] = {
 	/* symbol     arrange function */
 	{ "[T]",      tile },    /* first entry is default */
