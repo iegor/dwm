@@ -908,8 +908,7 @@ dirtomon(int dir) {
   return m;
 }
 
-void
-drawbar(Monitor *m) {
+void drawbar(Monitor *m) {
   int x, xx, w, ow, mw = 0, extra, tw, ww = 0;
   unsigned int i, occ = 0, urg = 0, n = 0;
   Client *c, *firstvis, *lastvis = NULL;
@@ -927,8 +926,7 @@ drawbar(Monitor *m) {
     w = TEXTW(tags[i].name);
     drw_setscheme(drw, m->tagset[m->seltags] & 1 << i ? &scheme[SchemeSel] : &scheme[SchemeNorm]);
     drw_text(drw, x, 0, w, bh, tags[i].name, urg & 1 << i);
-    drw_rect(drw, x, 0, w, bh, m == selmon && selmon->sel && selmon->sel->tags & 1 << i,
-               occ & 1 << i, urg & 1 << i);
+    drw_rect(drw, x, 0, w, bh, m == selmon && selmon->sel && selmon->sel->tags & 1 << i, occ & 1 << i, urg & 1 << i);
     x += w;
   }
 
