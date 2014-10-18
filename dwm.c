@@ -993,6 +993,7 @@ void drawbar(Monitor *m) {
 
       drw_setscheme(drw, m->sel == c ? &scheme[SchemeSel] : &scheme[SchemeNorm]);
       drw_text(drw, x, 0, w, bh, c->name, 0);
+      drw_rect(drw, x, 0, w, bh, c->isfixed, c->isfloating, 0);
       if(c != firstvis) drw_line(drw, x, 0, x, bh);
 
       x += w;
