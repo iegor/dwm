@@ -171,6 +171,15 @@ drw_text(Drw *drw, int x, int y, unsigned int w, unsigned int h, const char *tex
 		XDrawString(drw->dpy, drw->drawable, drw->gc, tx, ty, buf, len);
 }
 
+void drw_line(Drw *drw, int x1, int y1, int x2, int y2) {
+    XGCValues gcv;
+
+    gcv.foreground = drw->scheme->fg->rgb;
+    gcv.line_width = 2;
+    XChangeGC(drw->dpy, drw->gc, GCForeground, &gcv);
+    XDrawLine(drw->dpy, drw->drawable, drw->gc, x1, y1, x2, y2);
+}
+
 void
 drw_map(Drw *drw, Window win, int x, int y, unsigned int w, unsigned int h) {
 	if(!drw)

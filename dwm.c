@@ -990,9 +990,9 @@ void drawbar(Monitor *m) {
       if(w > mw) w = mw;
       if(c == lastvis) w = ow;
 
-      drw_setscheme(drw, m == selmon ? &scheme[SchemeSel] : &scheme[SchemeNorm]);
+      drw_setscheme(drw, m->sel == c ? &scheme[SchemeSel] : &scheme[SchemeNorm]);
       drw_text(drw, x, 0, w, bh, c->name, 0);
-      if(c != firstvis) drw_rect(drw, x, 0, w, bh, 1, 1, 0);
+      if(c != firstvis) drw_line(drw, x, 0, x, bh);
 
       x += w;
       w = ow - w;

@@ -64,6 +64,7 @@ void drw_setscheme(Drw *drw, ClrScheme *scheme);
 /* Drawing functions */
 void drw_rect(Drw *drw, int x, int y, unsigned int w, unsigned int h, int filled, int empty, int invert);
 void drw_text(Drw *drw, int x, int y, unsigned int w, unsigned int h, const char *text, int invert);
+void drw_line(Drw *drw, int x1, int y1, int x2, int y2);
 
 /* Map functions */
 void drw_map(Drw *drw, Window win, int x, int y, unsigned int w, unsigned int h);
