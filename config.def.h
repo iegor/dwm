@@ -14,6 +14,7 @@ static const unsigned int systrayspacing = 2;   /* systray spacing */
 static const Bool showsystray       = True;     /* False means no systray */
 static const Bool showbar           = True;     /* False means no bar */
 static const Bool topbar            = True;     /* False means bottom bar */
+static const int topbargap          = 4; /* Additional space to add to bar height */
 
 #define tag_code (1 << 8)
 #define tag_build (2 << 8)
