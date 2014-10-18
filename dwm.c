@@ -1006,12 +1006,6 @@ void drawbar(Monitor *m) {
     }
   }
 
-  if(m == selmon && m->sel && ISVISIBLE(m->sel)) {
-    drw_setscheme(drw, m == selmon ? &scheme[SchemeSel] : &scheme[SchemeNorm]);
-    drw_text(drw, x, 0, w, bh, m->sel->name, 0);
-    drw_rect(drw, x, 0, w, bh, m->sel->isfixed, m->sel->isfloating, 0);
-  }
-
   drw_map(drw, m->barwin, 0, 0, m->ww, bh);
 }
 
