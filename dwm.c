@@ -952,7 +952,7 @@ void drawbar(Monitor *m) {
     drw_text(drw, x, 0, w, bh, stext, 0);
     if(showxkb) {
       drw_setscheme(drw, &scheme[SchemeNorm]);
-      drw_text(drw, x+w, 0, ww, bh, xkb_layouts[xkbGlobal.group], 0);
+      drw_text(drw, x+w, 0, ww, bh, xkb_layouts[xkbGlobal.group], 1);
     }
   }
   else x = m->ww;
