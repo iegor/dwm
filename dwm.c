@@ -931,8 +931,9 @@ void drawbar(Monitor *m) {
   }
 
   w = blw = TEXTW(m->ltsymbol);
-  drw_setscheme(drw, &scheme[SchemeNorm]);
+  drw_setscheme(drw, &scheme[SchemeSel]);
   drw_text(drw, x, 0, w, bh, m->ltsymbol, 0);
+  drw_setscheme(drw, &scheme[SchemeNorm]);
   x += w;
   xx = x;
   if(m == selmon) { /* status is only drawn on selected monitor */
@@ -951,8 +952,8 @@ void drawbar(Monitor *m) {
     }
     drw_text(drw, x, 0, w, bh, stext, 0);
     if(showxkb) {
-      drw_setscheme(drw, &scheme[SchemeNorm]);
-      drw_text(drw, x+w, 0, ww, bh, xkb_layouts[xkbGlobal.group], 1);
+      drw_setscheme(drw, &scheme[SchemeSel]);
+      drw_text(drw, x+w, 0, ww, bh, xkb_layouts[xkbGlobal.group], 0);
     }
   }
   else x = m->ww;
